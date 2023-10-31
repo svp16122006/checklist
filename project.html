@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .taskbar {
+            display: flex;
+            height: 8vh;
+            background-color: rebeccapurple;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2vw;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .app-name {
+            font-size: 1.5vw;
+            color: white;
+            cursor: pointer;
+        }
+
+        .menus {
+            display: flex;
+            gap: 2vw;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .add-item,
+        .edit-item {
+            font-size: 1.5vw;
+            color: white;
+            padding: 0.5em 1em;
+            cursor: pointer;
+        }
+
+        .add-item:hover,
+        .edit-item:hover {
+            color: rebeccapurple;
+            background-color: white;
+            border-radius: 20px;
+        }
+
+        .items {
+            margin-top: 1cm;
+            display: flex;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            flex-direction: column;
+        }
+
+        .item-title {
+            color: rebeccapurple;
+            font-size: xx-large;
+            font-weight: bold;
+        }
+
+        .item-list {
+            margin-top: 1cm;
+            width: 50%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .delete,
+        .done,
+        .undo {
+            cursor: pointer;
+            padding: 0.5em 1em;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .delete {
+            background-color: rgb(255, 69, 69);
+        }
+
+        .done {
+            background-color: rgb(70, 70, 255);
+        }
+
+        .undo {
+            background-color: rgb(255, 165, 0);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function modalAdd() {
+                var add = document.getElementsByClassName('add-item')[0];
+                add.onclick = function () {
+                    var itemName = prompt("Enter the item name:");
+                    if (itemName) {
+                        addItem(itemName);
+                    }
+                }
+            }
+
+            function addItem(itemName) {
+                var table = document.getElementById('todo-table');
+                var newRow = table.insertRow(table.rows.length);
+                var cell1 = newRow.insertCell(0);
+                var cell2 = newRow.insertCell(1);
+                var cell3 = newRow.insertCell(2);
+
+                cell1.innerHTML = table.rows.length - 1;
+                cell2.innerHTML = itemName;
+
+                var actionsDiv = document.createElement('div');
+                actionsDiv.className = 'actions';
+
+                var deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete';
+                deleteBtn.innerHTML = 'Delete';
+                deleteBtn.onclick = function () {
+                    deleteItem(newRow);
+                };
+
+                var doneBtn = document.createElement('div');
+                doneBtn.className = 'done';
+                doneBtn.innerHTML = 'Mark as Done';
+                doneBtn.onclick = function () {
+                    markAsDone(newRow);
+                };
+
+                actionsDiv.appendChild(deleteBtn);
+                actionsDiv.appendChild(doneBtn);
+                cell3.appendChild(actionsDiv);
+            }
+
+            function deleteItem(row) {
+                var table = document.getElementById('todo-table');
+                table.deleteRow(row.rowIndex);
+            }
+
+            function markAsDone(row) {
+                var table = document.getElementById('todo-table');
+                var undoBtn = document.createElement('div');
+                undoBtn.className = 'undo';
+                undoBtn.innerHTML = 'Undo';
+                undoBtn.onclick = function () {
+                    undoMarkAsDone(row);
+                };
+
+                row.cells[1].style.textDecoration = 'line-through';
+                row.cells[2].innerHTML = '';
+                row.cells[2].appendChild(undoBtn);
+            }
+
+            function undoMarkAsDone(row) {
+                var table = document.getElementById('todo-table');
+                row.cells[1].style.textDecoration = 'none';
+                row.cells[2].innerHTML = '';
+
+                var actionsDiv = document.createElement('div');
+                actionsDiv.className = 'actions';
+
+                var deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete';
+                deleteBtn.innerHTML = 'Delete';
+                deleteBtn.onclick = function () {
+                    deleteItem(row);
+                };
+
+                var doneBtn = document.createElement('div');
+                doneBtn.className = 'done';
+                doneBtn.innerHTML = 'Mark as Done';
+                doneBtn.onclick = function () {
+                    markAsDone(row);
+                };
+
+                actionsDiv.appendChild(deleteBtn);
+                actionsDiv.appendChild(doneBtn);
+                row.cells[2].appendChild(actionsDiv);
+            }
+
+            function modalEdit() {
+                var edit = document.getElementsByClassName('edit-item')[0];
+                edit.onclick = function () {
+                    var itemId = prompt("Enter the item ID to edit:");
+                    var itemName = prompt("Enter the new item name:");
+                    if (itemId && itemName) {
+                        editItem(itemId, itemName);
+                    }
+                }
+            }
+
+            function editItem(itemId, itemName) {
+                var table = document.getElementById('todo-table');
+                if (itemId > 0 && itemId < table.rows.length) {
+                    table.rows[itemId].cells[1].innerHTML = itemName;
+                } else {
+                    alert('Invalid Item ID');
+                }
+            }
+
+            modalAdd();
+            modalEdit();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="taskbar">
+        <div class="app-name">
+            To-Do App
+        </div>
+        <div class="menus">
+            <div class="add-item">
+                Add
+            </div>
+            <div class="edit-item">
+                Edit
+            </div>
+        </div>
+    </div>
+    <div class="items">
+        <div class="item-title">
+            List Of Items
+        </div>
+        <div class="item-list">
+            <table border="1" id="todo-table">
+                <tr>
+                    <th>Id</th>
+                    <th>Item</th>
+                    <th>Actions</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
